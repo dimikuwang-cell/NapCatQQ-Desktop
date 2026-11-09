@@ -202,7 +202,7 @@ describe('runtime gate matrix', () => {
             },
         });
         expect(reason).toBe(
-            '本机缺少 QQ；不可用：Node.js（v18.19.1 不满足 ^22.13.0），请到「组件」页安装后再启动',
+            '本机缺少 QQ；不可用：Node.js（v18.19.1 不满足 ^22.13.0），且已无法通过桌面端安装 SnowLuma；请切换到其他底座或恢复本机 SnowLuma 目录',
         );
     });
 

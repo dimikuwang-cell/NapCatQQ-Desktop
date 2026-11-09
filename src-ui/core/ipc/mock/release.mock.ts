@@ -31,21 +31,7 @@ export const mockReleaseSnapshot: ReleaseSnapshot = {
             },
         ],
     },
-    snowluma_latest: {
-        version: '1.9.2',
-        tag: 'v1.9.2',
-        published_at: BigInt(NOW - 86400 * 5),
-        html_url: 'https://github.com/SnowLuma/SnowLuma/releases/tag/v1.9.2',
-        release_notes: [
-            '## SnowLuma v1.9.2',
-            '',
-            '- 修复 daemon 重连后状态不同步',
-            '- 改进协议同意流程文案',
-            '',
-            '详见上游 Release。',
-        ].join('\n'),
-        assets: [],
-    },
+    snowluma_latest: null,
     desktop_latest: {
         version: '3.0.0',
         tag: 'v3.0.0',

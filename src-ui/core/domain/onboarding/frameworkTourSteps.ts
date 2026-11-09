@@ -1,4 +1,5 @@
-// 框架对比 tour 步骤（本机 NC/SL + 演示远端依赖）。
+// 框架对比 tour 步骤（本机 NC + 演示远端依赖）。
+// SnowLuma 已不再公开分发，未安装的机器上没有它的下载入口，引导里也不再介绍。
 // 显式依赖以产品为准；安装过程中的 ZIP / QQ 系统库会自动处理，不单列成「你要先装」项。
 
 import { DEMO_REMOTE_HOST_ID, TOUR_IDS, type TourTargetId } from './tourIds';
@@ -20,8 +21,8 @@ export const LOCAL_FRAMEWORK_STEPS: readonly FrameworkTourStep[] = [
         id: 'local-framework-group',
         phase: 'local',
         target: TOUR_IDS.groupFramework,
-        title: '两个协议端',
-        body: 'Bot 跑在 NapCat 或 SnowLuma 上，Windows 本机两边都只要 QQ。下面的「应用端」是接在协议端后面的插件框架，按实例装。',
+        title: '协议端',
+        body: 'Bot 跑在协议端上，Windows 本机只要 QQ。下面的「应用端」是接在协议端后面的插件框架，按实例装。',
         selectHostId: 'local',
     },
     {
@@ -33,19 +34,11 @@ export const LOCAL_FRAMEWORK_STEPS: readonly FrameworkTourStep[] = [
         selectHostId: 'local',
     },
     {
-        id: 'local-snowluma',
-        phase: 'local',
-        target: TOUR_IDS.rowSnowluma,
-        title: '本机 SnowLuma',
-        body: '会拉起真正的 QQ 窗口。和 NC 的差别主要是「有没有带界面的 QQ」。',
-        selectHostId: 'local',
-    },
-    {
         id: 'local-qq',
         phase: 'local',
         target: TOUR_IDS.rowQq,
         title: '本机 QQ',
-        body: 'Windows 上 NC / SL 都挂在这上面。',
+        body: 'NapCat 挂在这上面。',
         selectHostId: 'local',
     },
 ];
@@ -68,27 +61,11 @@ export const REMOTE_DEMO_STEPS: readonly FrameworkTourStep[] = [
         selectHostId: DEMO_REMOTE_HOST_ID,
     },
     {
-        id: 'remote-snowluma',
-        phase: 'remote',
-        target: TOUR_IDS.rowSnowluma,
-        title: '远端 SnowLuma',
-        body: 'Linux 上依赖 QQ、Node.js 和 noVNC（浏览器里看 QQ 窗口时）。比远端 NC 多 Node 和 noVNC。',
-        selectHostId: DEMO_REMOTE_HOST_ID,
-    },
-    {
         id: 'remote-deps',
         phase: 'remote',
         target: TOUR_IDS.groupRuntime,
         title: '远端运行时',
-        body: 'NC 对应 QQ；SL 对应 QQ + Node + noVNC。下面几张卡就是这些；ZIP / 系统库安装时会自动处理。',
-        selectHostId: DEMO_REMOTE_HOST_ID,
-    },
-    {
-        id: 'remote-novnc',
-        phase: 'remote',
-        target: TOUR_IDS.rowNovnc,
-        title: 'noVNC（SnowLuma）',
-        body: '远端 SnowLuma 用它在浏览器里看 QQ 桌面。纯 NapCat 不需要。',
+        body: '远端 NapCat 对应 QQ；ZIP / 系统库安装时会自动处理。',
         selectHostId: DEMO_REMOTE_HOST_ID,
     },
 ];
@@ -124,7 +101,7 @@ export const BOT_CREATE_STEPS: readonly FrameworkTourStep[] = [
         phase: 'bots',
         target: TOUR_IDS.botIdentitySection,
         title: '① 身份 · 账号与框架',
-        body: 'QQ 账号、实例名称、底座（NapCat 无窗口 / SnowLuma 有 QQ 界面）。新建时 QQ 号会作为实例 id，保存后一般不能改。',
+        body: 'QQ 账号、实例名称、底座。新建时 QQ 号会作为实例 id，保存后一般不能改。',
     },
     {
         id: 'bots-runtime',

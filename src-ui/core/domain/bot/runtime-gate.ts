@@ -102,6 +102,7 @@ function directBlockReason(
     st: DirectRuntimeStatus | undefined,
     where: '本机' | '远程主机',
     names: ComponentNames | undefined,
+    backend?: string,
 ): string | null {
     if (!st) return `正在检测${where}运行时状态...`;
     if (!st.readiness) {
@@ -109,6 +110,13 @@ function directBlockReason(
     }
     const blocking = describeBlocking(st.readiness, names);
     if (!blocking) return null;
+    // SnowLuma 仓库已关闭：缺 SL 时「去组件页安装」是死路，提示要换成可行的出路
+    if (backend === 'snowluma') {
+        if (where === '本机') {
+            return `本机${blocking}，且已无法通过桌面端安装 SnowLuma；请切换到其他底座或恢复本机 SnowLuma 目录`;
+        }
+        return `远程主机${blocking}；SnowLuma 已无法通过桌面端安装，请在该主机上自行恢复`;
+    }
     const hint =
         where === '本机' ? '请到「组件」页安装后再启动' : '请到「组件」页为该主机安装后再启动';
     return `${where}${blocking}，${hint}`;
@@ -132,11 +140,11 @@ export function runtimeStartBlockReason(args: RuntimeGateArgs): string | null {
     }
 
     if (req.kind === 'local-direct') {
-        return directBlockReason(args.local, '本机', args.componentNames);
+        return directBlockReason(args.local, '本机', args.componentNames, req.backend);
     }
 
     if (req.kind === 'remote-direct') {
-        return directBlockReason(args.remoteDirect, '远程主机', args.componentNames);
+        return directBlockReason(args.remoteDirect, '远程主机', args.componentNames, req.backend);
     }
 
     // remote-docker 复用现有 docker 逻辑（这里只做简单兜底，真实阻断仍由 docker 门禁主负责）
@@ -186,6 +194,14 @@ export function runtimeReadinessNotice(args: RuntimeGateArgs): {
         }
         const blocking = describeBlocking(st.readiness, args.componentNames);
         if (blocking) {
+            if (req.backend === 'snowluma') {
+                // SnowLuma 仓库已关闭，「组件」页没有安装入口
+                const text =
+                    where === '本机'
+                        ? `本机${blocking}，且已无法通过桌面端安装 SnowLuma；请切换到其他底座或恢复本机 SnowLuma 目录`
+                        : `远程主机${blocking}；SnowLuma 已无法通过桌面端安装，请在该主机上自行恢复`;
+                return { tone: 'warn', text };
+            }
             return { tone: 'warn', text: `${where}${blocking}，请到「组件」页安装` };
         }
         const unknown = unknownNodes(st.readiness);

@@ -39,7 +39,7 @@ export const mockComponentCatalog: ComponentInfo[] = [
         id: 'snowluma',
         display_name: 'SnowLuma',
         description: '带 QQ 窗口的协议端',
-        repo_url: 'https://github.com/SnowLuma/SnowLuma',
+        repo_url: null,
         supported_targets: [
             { os: 'windows', locality: 'local' },
             { os: 'linux', locality: 'remote' },

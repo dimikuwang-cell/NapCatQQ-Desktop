@@ -18,6 +18,7 @@ import type {
     SupportedTarget,
     UnusableInstall,
 } from '../../ipc/types';
+import { shouldListComponent } from './downloadPolicy';
 
 /// 主机简化视图，前端只关心 host_id + 显示名 + 平台属性。
 /// 额外携带远端主机的连接状态（state）和简要健康信息（health），
@@ -110,6 +111,8 @@ export function groupByHost(rows: ComponentRow[], hosts: HostInfo[]): MachineVie
             if (!statusRow) continue;
             // 这台机器装不了的组件不进卡。
             if (statusRow.status.state === 'unsupported') continue;
+            // 已不再公开分发的组件（如 SnowLuma），未安装时不显示相关下载入口
+            if (!shouldListComponent(compRow.info.id, statusRow.status)) continue;
             const row: MachineComponentRow = {
                 info: compRow.info,
                 status: statusRow.status,

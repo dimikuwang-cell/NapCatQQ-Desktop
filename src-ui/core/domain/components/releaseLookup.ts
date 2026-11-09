@@ -13,7 +13,8 @@ export function resolveLatestVersion(
         case 'napcat':
             return releases.napcat?.version ?? null;
         case 'snowluma':
-            return releases.snowluma?.version ?? null;
+            // 仓库已不再公开，桌面端不提供 SnowLuma 下载/更新
+            return null;
         case 'desktop_self':
             return releases.desktop?.version ?? null;
         case 'ncd_watch':
@@ -37,7 +38,7 @@ export function resolveLatestRelease(
         case 'napcat':
             return releases.napcat;
         case 'snowluma':
-            return releases.snowluma;
+            return null;
         case 'desktop_self':
             return releases.desktop;
         case 'ncd_watch':
@@ -52,7 +53,7 @@ export function releaseNotesLabel(id: ComponentId | null): string {
         case 'napcat':
             return 'NapCat';
         case 'snowluma':
-            return 'SnowLuma';
+            return 'SnowLuma（仓库已关闭）';
         case 'desktop_self':
             return 'NapCatQQ Desktop';
         case 'ncd_watch':
