@@ -39,10 +39,7 @@ const CACHE_DIR_NAME: &str = "cache";
 const HTTP_TIMEOUT_SECS: u64 = 15;
 
 const NAPCAT_RELEASES_URL: &str = "https://api.github.com/repos/NapNeko/NapCatQQ/releases/latest";
-// SnowLuma 上游 owner/repo(用户确认)仓库尚未正式 release 时返回 404 走 None
-// 回落,不影响整体 snapshot 返回
-const SNOWLUMA_RELEASES_URL: &str =
-    "https://api.github.com/repos/SnowLuma/SnowLuma/releases/latest";
+// SnowLuma 仓库已不再公开，不再拉取远端版本（快照里恒为 None，桌面端也不提供安装/更新入口）。
 /// 同仓 Desktop + watch 共用;list 后按 tag 前缀分流,避免 watch-v* 污染 latest
 const DESKTOP_RELEASES_LIST_URL: &str =
     "https://api.github.com/repos/NapNeko/NapCatQQ-Desktop/releases?per_page=30";
@@ -115,18 +112,12 @@ pub async fn fetch_release_snapshot(
         "开始拉取远端版本快照（proxy_configured={proxy_configured}, pat={has_token}）"
     );
 
-    let (napcat, snowluma, desktop, ncd_watch, qq_linux, qq_windows) = tokio::join!(
+    let snowluma: Option<ReleaseInfo> = None;
+    let (napcat, desktop, ncd_watch, qq_linux, qq_windows) = tokio::join!(
         fetch_one(
             &client,
             ReleaseAlias::Napcat,
             GithubSource::Latest(NAPCAT_RELEASES_URL),
-            github_api_mode,
-            token,
-        ),
-        fetch_one(
-            &client,
-            ReleaseAlias::Snowluma,
-            GithubSource::Latest(SNOWLUMA_RELEASES_URL),
             github_api_mode,
             token,
         ),
@@ -156,7 +147,6 @@ pub async fn fetch_release_snapshot(
 
     let failed: Vec<&str> = [
         (napcat.is_none(), "NapCat"),
-        (snowluma.is_none(), "SnowLuma"),
         (desktop.is_none(), "Desktop"),
         (ncd_watch.is_none(), "ncd-watch"),
         (qq_linux.is_none(), "QQ-Linux"),
@@ -906,7 +896,12 @@ fn read_cache_for_mode_and_generation(
     let content = std::fs::read_to_string(&path).ok()?;
     let cached: CachedReleaseSnapshot = serde_json::from_str(&content).ok()?;
     (cached.github_api_mode == mode && cached.cache_generation.as_deref() == generation)
-        .then_some(cached.snapshot)
+        .then(|| {
+            // SnowLuma 仓库已关闭：老缓存里的版本号不再驱动 UI，读取时强制清空
+            let mut snapshot = cached.snapshot;
+            snapshot.snowluma_latest = None;
+            snapshot
+        })
 }
 
 /// API 模式或 PAT 改变后清理旧快照,下一次版本查询重新请求。

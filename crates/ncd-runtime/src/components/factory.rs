@@ -157,23 +157,21 @@ pub fn build_component_for_host(
                     .and_then(|s| s.snowluma_dir.as_deref())
                     .map(HostPath::from_windows)
                     .unwrap_or_else(|| data_root_host.join("components").join("SnowLuma"));
+                // SnowLuma 仓库已关闭：不再依赖 GitHub 快照确定版本。tag 只取本机
+                // 已装版本（boot 探测）；都没有时用无 tag 组件——detect/verify 照常
+                // 工作（未装 → not_installed），install 会在组件内拒绝缺 tag。
                 let latest = snapshot.and_then(|s| s.snowluma_latest.as_ref());
                 let tag = snowluma_github_release_tag(latest, local_snowluma_version);
-                if tag.is_empty() {
-                    return Err(
-                        "无法确定 SnowLuma 发布版本（GitHub 版本快照与本机已装版本均不可用）。\
-                         请确认能访问 GitHub 并在概览等待版本检查完成后再安装。"
-                            .to_string(),
-                    );
-                }
                 let package = ctx
                     .snowluma_linux_package
                     .unwrap_or_else(|| infer_snowluma_linux_package(ctx.selected));
-                let asset = snowluma_windows_release_asset(&tag, package);
                 let mut comp =
                     SnowLumaComponent::for_windows_with_package(install, tag.clone(), package);
-                if let Some(sha) = latest.and_then(|info| asset_sha256(info, &asset)) {
-                    comp = comp.with_sha256(sha);
+                if let Some(asset_tag) = (!tag.is_empty()).then_some(tag.as_str()) {
+                    let asset = snowluma_windows_release_asset(asset_tag, package);
+                    if let Some(sha) = latest.and_then(|info| asset_sha256(info, &asset)) {
+                        comp = comp.with_sha256(sha);
+                    }
                 }
                 Arc::new(comp)
             } else {
@@ -193,15 +191,11 @@ pub fn build_component_for_host(
                             format!("无法派生默认 SnowLuma workspace（home={home}）")
                         })?)
                     };
+                // SnowLuma 仓库已关闭：tag 只取本机已装版本；都没有时用占位 URL——
+                // detect/verify 照常工作（未装 → not_installed），install 会因
+                // 下载 URL 无效而失败，且 UI 已不再提供安装入口。
                 let latest = snapshot.and_then(|s| s.snowluma_latest.as_ref());
                 let tag = snowluma_github_release_tag(latest, local_snowluma_version);
-                if tag.is_empty() {
-                    return Err(
-                        "无法确定 SnowLuma 发布版本（GitHub 版本快照与本机已装版本均不可用）。\
-                         请确认能访问 GitHub 并在概览等待版本检查完成后再安装。"
-                            .to_string(),
-                    );
-                }
                 let package = ctx
                     .snowluma_linux_package
                     .unwrap_or_else(|| infer_snowluma_linux_package(ctx.selected));
@@ -211,7 +205,11 @@ pub fn build_component_for_host(
                         ctx.host.arch()
                     ));
                 }
-                let asset = snowluma_linux_release_asset(&tag, ctx.host.arch(), package);
+                let asset = snowluma_linux_release_asset(
+                    if tag.is_empty() { "unknown" } else { &tag },
+                    ctx.host.arch(),
+                    package,
+                );
                 let url =
                     format!("https://github.com/SnowLuma/SnowLuma/releases/download/{tag}/{asset}");
                 let mut comp = SnowLumaComponent::new(workspace, url).with_package(package);
