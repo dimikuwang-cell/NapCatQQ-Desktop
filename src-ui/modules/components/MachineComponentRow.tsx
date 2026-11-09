@@ -30,6 +30,7 @@ import type { ActionProgressView } from '../../core/domain/components/progress';
 import type { ComponentActionProgress } from '../../hooks/components/useComponentAction';
 import { useLocalQqSource } from '../../hooks/components/useLocalQqSource';
 import { compareSemver, type ReleaseInfoView } from '../../core/domain/release/normalize';
+import { isComponentUnavailable } from '../../core/domain/components/downloadPolicy';
 import {
     ProgressLine,
     ProgressBarOverlay,
@@ -43,7 +44,7 @@ import {
     shouldOfferIndependentNodeInstall,
     uninstallEntryAction,
 } from './componentStatusPresentation';
-import type { StepKind } from '../../core/ipc/types';
+import type { ComponentId, StepKind } from '../../core/ipc/types';
 
 export type RowAction =
     | { kind: 'install' }
@@ -167,6 +168,7 @@ export const MachineComponentRowView: React.FC<Props> = ({
             disabled={disabled || inFlight}
             lifecycleBlockedReason={lifecycleBlockedReason}
             onAction={handle}
+            componentId={info.id}
         />
     ) : null;
 
@@ -339,7 +341,7 @@ export const MachineComponentRowView: React.FC<Props> = ({
                     </ContextMenuItem>
                 )}
 
-                {!inFlight && status.state === 'installed' && updatable && (
+                {!inFlight && status.state === 'installed' && updatable && !isComponentUnavailable(info.id) && (
                     <ContextMenuItem
                         tone="brand"
                         disabled={disabled || !!lifecycleBlockedReason}
@@ -368,7 +370,7 @@ export const MachineComponentRowView: React.FC<Props> = ({
                     </ContextMenuItem>
                 )}
 
-                {!inFlight && (status.state === 'not_installed' || status.state === 'unusable') && (
+                {!inFlight && (status.state === 'not_installed' || status.state === 'unusable') && !isComponentUnavailable(info.id) && (
                     <ContextMenuItem
                         tone="brand"
                         disabled={disabled}
@@ -542,8 +544,11 @@ const ActionButtons: React.FC<{
     disabled?: boolean;
     lifecycleBlockedReason?: string | null;
     onAction: (a: RowAction) => void;
-}> = ({ status, latestRemoteVersion, disabled, lifecycleBlockedReason, onAction }) => {
+    componentId: ComponentId;
+}> = ({ status, latestRemoteVersion, disabled, lifecycleBlockedReason, onAction, componentId }) => {
     const lifecycleDisabled = disabled || !!lifecycleBlockedReason;
+    // 已不再公开分发的组件（如 SnowLuma）：隐藏安装/更新下载入口
+    if (isComponentUnavailable(componentId) && status.state !== 'installed') return null;
     switch (status.state) {
         case 'installed': {
             const updatable =

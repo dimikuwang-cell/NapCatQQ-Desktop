@@ -363,9 +363,10 @@ const AppFrameworkGroup: React.FC<{
 };
 
 /// 框架 component_id → docker 部署口味。其余组件无部署形态返回 null。
+/// SnowLuma 仓库已关闭，不再提供容器镜像下载入口。
 function frameworkFlavor(id: ComponentId): DockerFlavor | null {
     if (id === 'napcat') return 'napcat';
-    if (id === 'snowluma') return 'snowluma';
+    if (id === 'snowluma') return null;
     return null;
 }
 

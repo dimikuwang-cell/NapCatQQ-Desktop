@@ -1,7 +1,8 @@
-// 账号和底座选择；功能开关更新仅影响此区域。
+// 账号和底座选择；功能开关与本机组件安装状态共同决定底座可选项。
 import { useEffect, useMemo } from 'react';
 import { Badge, FormSection, NumberField, TextField } from '../../../../shared/ui';
 import { useFeatures } from '../../../../hooks/preferences/featureTogglesStore';
+import { useRuntimeReadiness } from '../../../../hooks/components/useRuntimeReadiness';
 import type { BackendType } from '../../../../core/ipc/generated/domain/BackendType';
 import type { IdentityTabProps } from './identityConfig';
 import { IdentityChoiceCard } from './IdentityChoiceCard';
@@ -37,16 +38,30 @@ export function IdentityAccountSection({
 }: Pick<IdentityTabProps, 'data' | 'onChange' | 'isEditMode' | 'isRunning'>) {
     // 设置里关掉的协议端不给选；已经是它的（老配置）照常显示
     const features = useFeatures();
+    // SnowLuma 仓库已关闭：本机没装时不再提供这个底座选项；编辑已有 SL Bot 例外保留
+    const { readiness, probing } = useRuntimeReadiness('local', 'snowluma');
+    const localSnowLumaUsable = useMemo(() => {
+        if (isEditMode && data.backend_type === 'snowluma') return true;
+        if (probing || !readiness) return true; // 探测完成前先不隐藏，避免闪没
+        return readiness.root.status.state === 'satisfied';
+    }, [isEditMode, data.backend_type, readiness, probing]);
     const backendItems = useMemo(
-        () => BACKEND_ITEMS.filter((i) => features[i.value] || i.value === data.backend_type),
-        [features, data.backend_type],
+        () =>
+            BACKEND_ITEMS.filter(
+                (i) =>
+                    (features[i.value] || i.value === data.backend_type) &&
+                    (i.value !== 'snowluma' || localSnowLumaUsable),
+            ),
+        [features, data.backend_type, localSnowLumaUsable],
     );
     // 新建时默认的底座被关了，换成开着的那个（两个至少留一个）
     useEffect(() => {
         if (isEditMode || features[data.backend_type]) return;
-        onChange({ backend_type: features.napcat ? 'napcat' : 'snowluma' });
+        if (data.backend_type === 'snowluma' && !localSnowLumaUsable) {
+            onChange({ backend_type: 'napcat' });
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps -- onChange 每次渲染都是新的
-    }, [isEditMode, features, data.backend_type]);
+    }, [isEditMode, features, data.backend_type, localSnowLumaUsable]);
 
     const namePlaceholder = useMemo(() => {
         if (data.QQID > 0) {

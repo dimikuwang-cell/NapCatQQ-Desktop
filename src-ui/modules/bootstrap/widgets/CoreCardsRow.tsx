@@ -1,9 +1,9 @@
-// 概览 Core 双卡：NapCat 与 SnowLuma 的安装状态 + 可更新徽章，点卡跳组件页。
-// 图标微交互：摸卡时猫耳抖一抖、雪花转一圈；连点雪花 5 次触发大旋转彩蛋。
+// 概览 Core 卡：NapCat 安装状态 + 可更新徽章，点卡跳组件页。
+// SnowLuma 仓库已关闭：未安装不再显示占位卡；已安装仍保留管理入口。
+// 图标微交互：摸卡时猫耳抖一抖。
 
 import React, { useRef } from 'react';
 import gsap from 'gsap';
-import { Snowflake } from 'lucide-react';
 import { Card, Badge } from '../../../shared/ui';
 import { useMotion } from '../../../hooks/preferences/useMotion';
 import napcatPng from '../../../assets/napcat-symbol-48.png?inline';
@@ -26,9 +26,16 @@ export const CoreCardsRow: React.FC<CoreCardsRowProps> = ({
 }) => {
     const napcatUpdate = updates.find((u) => u.project === 'napcat');
     const snowlumaUpdate = updates.find((u) => u.project === 'snowluma');
+    const showSnowluma = snowlumaVersion !== null;
 
     return (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div
+            className={
+                showSnowluma
+                    ? 'grid grid-cols-1 gap-3 sm:grid-cols-2'
+                    : 'grid grid-cols-1'
+            }
+        >
             <CoreCard
                 kind="napcat"
                 label="NapCat"
@@ -36,13 +43,15 @@ export const CoreCardsRow: React.FC<CoreCardsRowProps> = ({
                 update={napcatUpdate ?? null}
                 onNavigate={onNavigate}
             />
-            <CoreCard
-                kind="snowluma"
-                label="SnowLuma"
-                version={snowlumaVersion}
-                update={snowlumaUpdate ?? null}
-                onNavigate={onNavigate}
-            />
+            {showSnowluma && (
+                <CoreCard
+                    kind="snowluma"
+                    label="SnowLuma"
+                    version={snowlumaVersion}
+                    update={snowlumaUpdate ?? null}
+                    onNavigate={onNavigate}
+                />
+            )}
         </div>
     );
 };
@@ -61,54 +70,16 @@ const CoreCard: React.FC<CoreCardProps> = ({ kind, label, version, update, onNav
     const dotClass = installed ? 'bg-success shadow-glow-success' : 'bg-text-disabled/80';
     const m = useMotion();
     const iconRef = useRef<HTMLDivElement>(null);
-    const snowflakeClicksRef = useRef({ startedAt: 0, count: 0 });
 
-    // 摸到卡片时图标动一下：猫耳朵抖一抖，雪花转一圈。
+    // 摸到卡片时图标动一下：猫耳朵抖一抖。
     const nudgeIcon = () => {
         const el = iconRef.current;
         if (!el || !m.enabled || m.preset.feel.popPeak === 1) return;
         gsap.killTweensOf(el);
-        if (kind === 'napcat') {
-            gsap.fromTo(
-                el,
-                { rotate: -8 },
-                { rotate: 0, duration: 0.7 / Math.max(0.5, m.speed), ease: 'ndf-wiggle' },
-            );
-        } else {
-            gsap.fromTo(
-                el,
-                { rotate: 0 },
-                { rotate: 180, duration: m.duration('slow') * 2, ease: m.ease.release },
-            );
-        }
-    };
-
-    const handleSnowflakeClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const el = iconRef.current;
-        if (!el) return;
-        if (!m.enabled || m.preset.feel.popPeak === 1) {
-            snowflakeClicksRef.current = { startedAt: 0, count: 0 };
-            return;
-        }
-
-        event.stopPropagation();
-        const now = performance.now();
-        const clicks = snowflakeClicksRef.current;
-        if (clicks.count === 0 || now - clicks.startedAt > 2_000) {
-            snowflakeClicksRef.current = { startedAt: now, count: 1 };
-            return;
-        }
-        if (clicks.count < 4) {
-            clicks.count += 1;
-            return;
-        }
-
-        snowflakeClicksRef.current = { startedAt: 0, count: 0 };
-        gsap.killTweensOf(el);
         gsap.fromTo(
             el,
-            { rotate: 0 },
-            { rotate: 900, duration: m.duration('slow') * 2, ease: m.ease.release },
+            { rotate: -8 },
+            { rotate: 0, duration: 0.7 / Math.max(0.5, m.speed), ease: 'ndf-wiggle' },
         );
     };
 
@@ -130,23 +101,12 @@ const CoreCard: React.FC<CoreCardProps> = ({ kind, label, version, update, onNav
                     className="grid place-items-center"
                     style={{ transformOrigin: '50% 60%' }}
                 >
-                    {kind === 'napcat' ? (
-                        <img
-                            src={napcatPng}
-                            alt=""
-                            className="h-6 w-6 select-none"
-                            draggable={false}
-                        />
-                    ) : (
-                        <button
-                            type="button"
-                            aria-label="SnowLuma 雪花"
-                            onClick={handleSnowflakeClick}
-                            className="grid cursor-pointer place-items-center rounded-sm border-0 bg-transparent p-0 text-info focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-info"
-                        >
-                            <Snowflake size={18} strokeWidth={1.75} className="text-info" />
-                        </button>
-                    )}
+                    <img
+                        src={napcatPng}
+                        alt=""
+                        className="h-6 w-6 select-none"
+                        draggable={false}
+                    />
                 </div>
             </div>
 

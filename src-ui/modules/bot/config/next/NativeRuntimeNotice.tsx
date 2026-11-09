@@ -21,10 +21,14 @@ export function NativeRuntimeNotice({
     const names = useComponentNames();
     const local = hostId === 'local';
     const blocking = readiness ? describeBlocking(readiness, names) : null;
+    // SnowLuma 仓库已关闭，本机缺 SL 时不能再去「组件」页安装
+    const missingSnowLuma = blocking != null && backend === 'snowluma';
     const message = transportFailed
         ? '远端主机不可达，保存后无法启动。请先在「远程主机」页恢复连接。'
         : blocking
-          ? local
+          ? missingSnowLuma
+            ? `本机缺少 SnowLuma，且已无法通过桌面端安装；请切换到其他底座或恢复本机 SnowLuma 目录`
+            : local
               ? `本机${blocking}，请到「组件」页安装后再使用本机直接运行`
               : `远程主机${blocking}，请到「组件」页安装`
           : local && probing

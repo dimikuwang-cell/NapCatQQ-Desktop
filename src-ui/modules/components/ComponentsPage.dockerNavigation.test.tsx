@@ -139,7 +139,6 @@ vi.mock('./HostComponentsView', () => ({
     ),
 }));
 vi.mock('./ReleaseNotesDialog', () => ({ ReleaseNotesDialog: () => null }));
-vi.mock('./SnowLumaPackageDialog', () => ({ SnowLumaPackageDialog: () => null }));
 vi.mock('../docker/SudoPasswordDialog', () => ({ SudoPasswordDialog: () => null }));
 vi.mock('../apps', () => ({ CreateInstanceDialog: () => null, ImportInstanceDialog: () => null }));
 vi.mock('./useQqDependencyProbes', () => ({
@@ -149,7 +148,10 @@ vi.mock('./useQqDependencyProbes', () => ({
     }),
 }));
 vi.mock('./useComponentActions', () => ({
-    useComponentActions: () => ({ slPkgPrompt: null, lifecycleBlockedReasonForHost: () => null }),
+    useComponentActions: () => ({
+        handleAction: vi.fn(),
+        lifecycleBlockedReasonForHost: () => null,
+    }),
 }));
 vi.mock('./useDockerSudoOps', () => ({
     useDockerSudoOps: () => ({ sudoPrompt: null, handleInstallDocker: harness.installDocker }),

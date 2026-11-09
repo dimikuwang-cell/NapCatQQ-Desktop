@@ -165,10 +165,10 @@ describe('Docker 部署区', () => {
             imageReadyByFlavor: { napcat: true, snowluma: true },
         });
         render(<DockerDeploymentSection {...input} />);
-        fireEvent.click(screen.getByRole('button', { name: '新建 SnowLuma Bot' }));
+        fireEvent.click(screen.getByRole('button', { name: '新建 NapCat Bot' }));
         expect(navigation.create).toHaveBeenCalledWith({
             hostId: 'remote:second-host',
-            flavor: 'snowluma',
+            flavor: 'napcat',
             engine: 'docker',
         });
         fireEvent.click(screen.getByRole('button', { name: '容器管理' }));

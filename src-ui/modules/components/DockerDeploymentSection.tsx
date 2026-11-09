@@ -86,11 +86,6 @@ export function DockerDeploymentSection({
         '检查 NapCat 镜像失败',
         showNotices && flavors.includes('napcat') ? imageErrorByFlavor?.napcat : null,
     );
-    useDockerQueryNotice(
-        `container-image:${hostId}:${engine}:snowluma`,
-        '检查 SnowLuma 镜像失败',
-        showNotices && flavors.includes('snowluma') ? imageErrorByFlavor?.snowluma : null,
-    );
     const busyLabel = engineState.switching
         ? '正在切换引擎'
         : engineState.loading
@@ -101,9 +96,7 @@ export function DockerDeploymentSection({
         onRetry();
     };
     const managementEnabled = useFeatureEnabled('dockerPage');
-    const pullingForHost = (['napcat', 'snowluma'] as const).some((flavor) =>
-        isPullingImage(hostId, flavor),
-    );
+    const pullingForHost = isPullingImage(hostId, 'napcat');
     const canPull =
         supported &&
         !!engine &&

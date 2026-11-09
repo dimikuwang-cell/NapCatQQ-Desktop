@@ -1,8 +1,8 @@
-// 组件页组件操作编排：启停/更新/卸载任务发起、生命周期门禁、SnowLuma 选包。
+// 组件页组件操作编排：启停/更新/卸载任务发起、生命周期门禁。
 // 从 ComponentsPage.next 外提；Docker 安装与 sudo 弹框在 useDockerSudoOps
 // （两边共用 startAction/onTaskTerminal/refetch，startQqDepsRepair 在那边）。
 
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import type { QueryClient } from '@tanstack/react-query';
 import { globalInfoBarStore } from '../../hooks/ui/globalInfoBarStore';
 import { pushErrorBar } from '../../hooks/ui/pushErrorBar';
@@ -12,20 +12,8 @@ import {
     componentLifecycleBlockedReason,
 } from '../../core/domain/components/mutation-gate';
 import type { UseComponentActionResult } from '../../hooks/components/useComponentAction';
-import type {
-    BotActorSnapshot,
-    ComponentId,
-    SnowLumaPackage,
-    StepKind,
-} from '../../core/ipc/types';
+import type { BotActorSnapshot, ComponentId, StepKind } from '../../core/ipc/types';
 import type { BotConfig } from '../../core/ipc/generated/domain/BotConfig';
-
-// SnowLuma 在 Linux 装前要选发行版包，弹框确认后的载荷。
-export interface SnowLumaPackagePrompt {
-    componentId: ComponentId;
-    hostId: string;
-    stepKind: StepKind;
-}
 
 export interface UseComponentActionsInput {
     hostNameOf: (hostId: string) => string;
@@ -38,9 +26,6 @@ export interface UseComponentActionsInput {
 }
 
 export interface UseComponentActionsResult {
-    slPkgPrompt: SnowLumaPackagePrompt | null;
-    closeSlPkgPrompt: () => void;
-    confirmSnowLumaPackage: (pkg: SnowLumaPackage) => void;
     handleAction: (
         componentId: ComponentId,
         hostId: string,
@@ -60,16 +45,9 @@ export function useComponentActions(args: UseComponentActionsInput): UseComponen
         probeQqDependencies,
     } = args;
 
-    const [slPkgPrompt, setSlPkgPrompt] = useState<SnowLumaPackagePrompt | null>(null);
-
     const beginComponentAction = useCallback(
-        async (
-            componentId: ComponentId,
-            hostId: string,
-            stepKind: StepKind,
-            options?: { snowlumaLinuxPackage?: SnowLumaPackage },
-        ) => {
-            const taskId = await startAction(componentId, hostId, stepKind, options);
+        async (componentId: ComponentId, hostId: string, stepKind: StepKind) => {
+            const taskId = await startAction(componentId, hostId, stepKind);
             onTaskTerminal(taskId, (status) => {
                 // 只在成功时刷新状态；失败/取消时不刷新，避免部分删除导致探测返回 None 误显示"未安装"。
                 if (status === 'success') {
@@ -89,8 +67,8 @@ export function useComponentActions(args: UseComponentActionsInput): UseComponen
     const reportActionStartError = useCallback(
         (componentId: ComponentId, hostId: string, err: unknown) => {
             pushErrorBar({
-                key: `component-action-start:${componentId}:${hostId}`,
-                title: `组件操作失败 · ${hostNameOf(hostId)}`,
+                key: 'component-action-start:' + componentId + ':' + hostId,
+                title: '组件操作失败 · ' + hostNameOf(hostId),
                 raw: errorText(err, '组件操作失败，请稍后重试'),
             });
         },
@@ -116,23 +94,15 @@ export function useComponentActions(args: UseComponentActionsInput): UseComponen
                 );
                 if (blocked) {
                     globalInfoBarStore.push({
-                        key: `component-action-blocked:${componentId}:${hostId}:${payload.stepKind}`,
+                        key: 'component-action-blocked:' + componentId + ':' + hostId + ':' + payload.stepKind,
                         tone: 'warning',
-                        title: `无法${payload.stepKind === 'update' ? '更新' : '卸载'} · ${hostNameOf(hostId)}`,
+                        title:
+                            '无法' +
+                            (payload.stepKind === 'update' ? '更新' : '卸载') +
+                            ' · ' +
+                            hostNameOf(hostId),
                         content: blocked,
                         autoDismissMs: 8_000,
-                    });
-                    return;
-                }
-                if (
-                    componentId === 'snowluma' &&
-                    (payload.stepKind === 'ensure_installed' ||
-                        payload.stepKind === 'force_install')
-                ) {
-                    setSlPkgPrompt({
-                        componentId,
-                        hostId,
-                        stepKind: payload.stepKind,
                     });
                     return;
                 }
@@ -151,30 +121,12 @@ export function useComponentActions(args: UseComponentActionsInput): UseComponen
         ],
     );
 
-    const confirmSnowLumaPackage = useCallback(
-        (pkg: SnowLumaPackage) => {
-            const pending = slPkgPrompt;
-            if (!pending) return;
-            setSlPkgPrompt(null);
-
-            void beginComponentAction(pending.componentId, pending.hostId, pending.stepKind, {
-                snowlumaLinuxPackage: pkg,
-            }).catch((err) => {
-                reportActionStartError(pending.componentId, pending.hostId, err);
-            });
-        },
-        [slPkgPrompt, beginComponentAction, reportActionStartError],
-    );
-
     const lifecycleBlockedReasonForHost = useCallback(
         (hostId: string) => componentLifecycleBlockedReason(botSnapshots, botConfigs, hostId),
         [botSnapshots, botConfigs],
     );
 
     return {
-        slPkgPrompt,
-        closeSlPkgPrompt: () => setSlPkgPrompt(null),
-        confirmSnowLumaPackage,
         handleAction,
         lifecycleBlockedReasonForHost,
     };

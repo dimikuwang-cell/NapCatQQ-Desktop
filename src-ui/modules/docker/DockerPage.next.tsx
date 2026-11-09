@@ -38,7 +38,7 @@ const CARD_GRID_STYLE = {
 
 const EMPTY_HINTS: Record<DockerTab, string> = {
     containers: '在「容器部署」中新建 Bot，启动后创建对应容器。',
-    images: '在「容器部署」中准备 NapCat 或 SnowLuma 镜像。',
+    images: '在「容器部署」中准备 NapCat 镜像。',
     networks: '容器部署创建网络后，会出现在这里。',
     volumes: '容器部署或容器创建数据卷后，会出现在这里。',
 };

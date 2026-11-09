@@ -38,7 +38,7 @@ import { pushInfoBar } from '../../hooks/ui/globalInfoBarStore';
 import { HostSwitcher } from './HostSwitcher';
 import { HostComponentsView } from './HostComponentsView';
 import { ReleaseNotesDialog } from './ReleaseNotesDialog';
-import { SnowLumaPackageDialog } from './SnowLumaPackageDialog';
+
 import { SudoPasswordDialog } from '../docker/SudoPasswordDialog';
 import { CreateInstanceDialog, ImportInstanceDialog } from '../apps';
 import { machineSummary, type ComponentRow } from '../../core/domain/components/types';
@@ -197,13 +197,7 @@ export const ComponentsPageNext: React.FC = () => {
 
     const dialogs = useAppInstanceDialogs({ hostNameOf, apps });
 
-    const {
-        slPkgPrompt,
-        closeSlPkgPrompt,
-        confirmSnowLumaPackage,
-        handleAction,
-        lifecycleBlockedReasonForHost,
-    } = useComponentActions({
+    const { handleAction, lifecycleBlockedReasonForHost } = useComponentActions({
         hostNameOf,
         refetch,
         queryClient,
@@ -397,13 +391,6 @@ export const ComponentsPageNext: React.FC = () => {
                 release={releaseNotesTarget ? latestReleaseFor(releaseNotesTarget) : null}
             />
 
-            <SnowLumaPackageDialog
-                open={slPkgPrompt != null}
-                onOpenChange={(open) => {
-                    if (!open) closeSlPkgPrompt();
-                }}
-                onConfirm={confirmSnowLumaPackage}
-            />
 
             <ImportInstanceDialog
                 target={dialogs.importAppTarget}
