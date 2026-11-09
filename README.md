@@ -44,7 +44,7 @@
 
 ### 部署与管理 Bot
 
-- **双协议端**：管理 [NapCatQQ](https://github.com/NapNeko/NapCatQQ) 和 [SnowLuma](https://github.com/SnowLuma/SnowLuma)，查看运行状态、登录状态与日志，编辑 OneBot 连接。
+- **双协议端**：管理 [NapCatQQ](https://github.com/NapNeko/NapCatQQ) 和 SnowLuma，查看运行状态、登录状态与日志，编辑 OneBot 连接。SnowLuma 上游仓库已不再公开，桌面端不提供其安装与更新；已安装的机器保留完整管理能力。
 - **本机与远端**：本机 Windows / Linux 原生运行；通过 SSH 管理远端 Linux，支持原生运行和 Docker 部署。
 - **组件安装**：在界面里安装、更新运行时与框架，查看依赖和任务进度；QQ 可单独安装一份，减少对日常使用的系统 QQ 的影响。
 - **运行监控**：查看主机 CPU、内存、磁盘及 Bot 指标，配置自动重启、掉线通知；远端可安装 [ncd-watch](https://napneko.github.io/NapCatQQ-Desktop/docs/watch/)，在 Desktop 退出后继续值守。
@@ -112,7 +112,7 @@ Linux 托盘需桌面环境提供 AppIndicator 支持（GNOME 可安装相应扩
 
 1. **选运行位置**：本机可直接开始；远端先在「远端」页添加 SSH 主机并测试连接。
 2. **准备组件**：在「组件」页选择主机，安装所需的运行时、QQ 与协议端。
-3. **创建 Bot**：在「机器人」页新建，选择 NapCat 或 SnowLuma，填写 QQ 号、运行位置和连接配置。
+3. **创建 Bot**：在「机器人」页新建，选择 NapCat（或已安装的 SnowLuma），填写 QQ 号、运行位置和连接配置。
 4. **启动并登录**：启动 Bot，按协议端提供的 WebUI 或 QQ 登录入口完成登录，查看卡片状态和日志。
 5. **按需扩展**：进入「聊天」，或在「应用端」创建实例并对接；接口问题可从 Bot 卡片进入调试台。
 
@@ -157,11 +157,11 @@ Linux 使用 `pnpm` 执行同样的命令。只看界面可运行 `pnpm.cmd run 
 
 - **问题与建议**：[GitHub Issues](https://github.com/NapNeko/NapCatQQ-Desktop/issues)。请附 Desktop 版本、协议端版本、运行方式、复现步骤和相关日志；贴出前隐藏 token、密码及密钥。
 - **交流**：[加入 QQ 群](https://qm.qq.com/q/8UK5ecfDyw)。
-- **协议端文档**：[NapCat 文档](https://napneko.github.io/) · [SnowLuma](https://github.com/SnowLuma/SnowLuma)。
+- **协议端文档**：[NapCat 文档](https://napneko.github.io/)。
 
 ## 致谢
 
-感谢 [NapCatQQ](https://github.com/NapNeko/NapCatQQ)、[SnowLuma](https://github.com/SnowLuma/SnowLuma)，以及 Tauri、Rust、React 和各应用端框架的开发者，也感谢提交 Issue、PR 和参与测试的朋友。
+感谢 [NapCatQQ](https://github.com/NapNeko/NapCatQQ)、SnowLuma，以及 Tauri、Rust、React 和各应用端框架的开发者，也感谢提交 Issue、PR 和参与测试的朋友。
 
 <a href="https://github.com/NapNeko/NapCatQQ-Desktop/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=NapNeko/NapCatQQ-Desktop" alt="项目贡献者" />
