@@ -207,7 +207,8 @@ impl SnowLumaComponent {
             id: ComponentId::SnowLuma,
             display_name: "SnowLuma".to_string(),
             description: "带 QQ 窗口的协议端".to_string(),
-            repo_url: Some("https://github.com/SnowLuma/SnowLuma".to_string()),
+            // 仓库已关闭，不再提供公开下载入口
+            repo_url: None,
             supported_targets: vec![
                 crate::types::SupportedTarget::new(Os::Windows, Locality::Local),
                 crate::types::SupportedTarget::new(Os::Windows, Locality::Remote),
