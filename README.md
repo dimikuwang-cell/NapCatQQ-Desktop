@@ -42,9 +42,13 @@
 
 ## 主要功能
 
+>
+> SnowLuma 上游仓库已不再公开，桌面端不提供其安装与更新；已安装的机器保留完整管理能力。
+>
+
 ### 部署与管理 Bot
 
-- **双协议端**：管理 [NapCatQQ](https://github.com/NapNeko/NapCatQQ) 和 SnowLuma，查看运行状态、登录状态与日志，编辑 OneBot 连接。SnowLuma 上游仓库已不再公开，桌面端不提供其安装与更新；已安装的机器保留完整管理能力。
+- **双协议端**：管理 [NapCatQQ](https://github.com/NapNeko/NapCatQQ) 和 SnowLuma，查看运行状态、登录状态与日志，编辑 OneBot 连接。
 - **本机与远端**：本机 Windows / Linux 原生运行；通过 SSH 管理远端 Linux，支持原生运行和 Docker 部署。
 - **组件安装**：在界面里安装、更新运行时与框架，查看依赖和任务进度；QQ 可单独安装一份，减少对日常使用的系统 QQ 的影响。
 - **运行监控**：查看主机 CPU、内存、磁盘及 Bot 指标，配置自动重启、掉线通知；远端可安装 [ncd-watch](https://napneko.github.io/NapCatQQ-Desktop/docs/watch/)，在 Desktop 退出后继续值守。
