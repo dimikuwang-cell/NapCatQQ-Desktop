@@ -212,3 +212,15 @@ jobs:
             release-assets/ncd-watch-*
             release-assets/SHA256SUMS
           fail_on_unmatched_files: true
+
+      - name: Notify website sync
+        # 官网 releases 快照的 CI 在 main 上监听 repository_dispatch；draft 不通知，转正时走每日兜底
+        if: ${{ !github.event.inputs.draft }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: 'watch-release',
+            });
